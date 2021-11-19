@@ -1,0 +1,2 @@
+rvis_simulation
+-DCATKIN_DEVEL_PREFIX=/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/install -G Unix Makefiles
