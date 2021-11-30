@@ -67,7 +67,7 @@ set(lab4_cam_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("TRUE" STREQUAL "TRUE")
-  set(lab4_cam_SOURCE_PREFIX /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/lab4_cam)
+  set(lab4_cam_SOURCE_PREFIX /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/lab4/src/lab4_starter/lab4_cam)
   set(lab4_cam_DEVEL_PREFIX /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel)
   set(lab4_cam_INSTALL_PREFIX "")
   set(lab4_cam_PREFIX ${lab4_cam_DEVEL_PREFIX})
@@ -110,7 +110,7 @@ if(NOT "/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/inc
         message(FATAL_ERROR "Project 'lab4_cam' specifies '${idir}' as an include dir, which is not found.  It does not exist in '${include}'.  ${_report}")
       endif()
     else()
-      message(FATAL_ERROR "Project 'lab4_cam' specifies '${idir}' as an include dir, which is not found.  It does neither exist as an absolute directory nor in '/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/lab4_cam/${idir}'.  ${_report}")
+      message(FATAL_ERROR "Project 'lab4_cam' specifies '${idir}' as an include dir, which is not found.  It does neither exist as an absolute directory nor in '/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/lab4/src/lab4_starter/lab4_cam/${idir}'.  ${_report}")
     endif()
     _list_append_unique(lab4_cam_INCLUDE_DIRS ${include})
   endforeach()
@@ -131,7 +131,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib;/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib;/home/eecs106a/baxter_ws/devel/lib;/opt/ros/kinetic/lib)
+    foreach(path /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib;/home/eecs106a/Documents/hgfs/EECS106A-Lab/lab4/devel/lib;/opt/ros/kinetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

@@ -1,0 +1,8 @@
+prefix=/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel
+
+Name: turtlebot_control
+Description: Description of turtlebot_control
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib 
+Requires: 

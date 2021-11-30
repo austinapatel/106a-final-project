@@ -127,8 +127,11 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/mnt/hgfs/106a_final_project/ros_workspace/build/gtest/cmake_install.cmake")
   include("/mnt/hgfs/106a_final_project/ros_workspace/build/rvis_simulation/cmake_install.cmake")
-  include("/mnt/hgfs/106a_final_project/ros_workspace/build/lab4_cam/cmake_install.cmake")
-  include("/mnt/hgfs/106a_final_project/ros_workspace/build/usb_cam/cmake_install.cmake")
+  include("/mnt/hgfs/106a_final_project/ros_workspace/build/lab4/src/lab4_starter/ar_track_alvar/ar_track_alvar_msgs/cmake_install.cmake")
+  include("/mnt/hgfs/106a_final_project/ros_workspace/build/lab4/src/lab4_starter/lab4_cam/cmake_install.cmake")
+  include("/mnt/hgfs/106a_final_project/ros_workspace/build/lab4/src/lab4_starter/ar_track_alvar/ar_track_alvar/cmake_install.cmake")
+  include("/mnt/hgfs/106a_final_project/ros_workspace/build/lab4/src/turtlebot_control/cmake_install.cmake")
+  include("/mnt/hgfs/106a_final_project/ros_workspace/build/lab4/src/lab4_starter/usb_cam/cmake_install.cmake")
 
 endif()
 
