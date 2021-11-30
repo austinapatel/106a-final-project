@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src
+CMAKE_SOURCE_DIR = /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/hgfs/106a_final_project/ros_workspace/build
+CMAKE_BINARY_DIR = /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build
 
 # Utility rule file for clean_test_results.
 
@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /mnt/hgfs/106a_final_project/ros_workspace/build
 include CMakeFiles/clean_test_results.dir/progress.make
 
 CMakeFiles/clean_test_results:
-	/usr/bin/python /opt/ros/kinetic/share/catkin/cmake/test/remove_test_results.py /mnt/hgfs/106a_final_project/ros_workspace/build/test_results
+	/usr/bin/python2 /opt/ros/kinetic/share/catkin/cmake/test/remove_test_results.py /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/test_results
 
 clean_test_results: CMakeFiles/clean_test_results
 clean_test_results: CMakeFiles/clean_test_results.dir/build.make
@@ -71,6 +71,6 @@ CMakeFiles/clean_test_results.dir/clean:
 .PHONY : CMakeFiles/clean_test_results.dir/clean
 
 CMakeFiles/clean_test_results.dir/depend:
-	cd /mnt/hgfs/106a_final_project/ros_workspace/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src /mnt/hgfs/106a_final_project/ros_workspace/build /mnt/hgfs/106a_final_project/ros_workspace/build /mnt/hgfs/106a_final_project/ros_workspace/build/CMakeFiles/clean_test_results.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/CMakeFiles/clean_test_results.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/clean_test_results.dir/depend
 

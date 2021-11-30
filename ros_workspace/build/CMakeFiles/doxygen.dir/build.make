@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src
+CMAKE_SOURCE_DIR = /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/hgfs/106a_final_project/ros_workspace/build
+CMAKE_BINARY_DIR = /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build
 
 # Utility rule file for doxygen.
 
@@ -67,6 +67,6 @@ CMakeFiles/doxygen.dir/clean:
 .PHONY : CMakeFiles/doxygen.dir/clean
 
 CMakeFiles/doxygen.dir/depend:
-	cd /mnt/hgfs/106a_final_project/ros_workspace/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src /mnt/hgfs/106a_final_project/ros_workspace/build /mnt/hgfs/106a_final_project/ros_workspace/build /mnt/hgfs/106a_final_project/ros_workspace/build/CMakeFiles/doxygen.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/CMakeFiles/doxygen.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/doxygen.dir/depend
 

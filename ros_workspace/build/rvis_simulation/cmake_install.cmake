@@ -1,8 +1,8 @@
-# Install script for directory: /home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/rvis_simulation
+# Install script for directory: /home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src/rvis_simulation
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/install")
+  set(CMAKE_INSTALL_PREFIX "/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -33,17 +33,17 @@ if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 endif()
 
 if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/mnt/hgfs/106a_final_project/ros_workspace/build/rvis_simulation/catkin_generated/installspace/rvis_simulation.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/rvis_simulation/catkin_generated/installspace/rvis_simulation.pc")
 endif()
 
 if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rvis_simulation/cmake" TYPE FILE FILES
-    "/mnt/hgfs/106a_final_project/ros_workspace/build/rvis_simulation/catkin_generated/installspace/rvis_simulationConfig.cmake"
-    "/mnt/hgfs/106a_final_project/ros_workspace/build/rvis_simulation/catkin_generated/installspace/rvis_simulationConfig-version.cmake"
+    "/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/rvis_simulation/catkin_generated/installspace/rvis_simulationConfig.cmake"
+    "/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/rvis_simulation/catkin_generated/installspace/rvis_simulationConfig-version.cmake"
     )
 endif()
 
 if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rvis_simulation" TYPE FILE FILES "/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/rvis_simulation/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/rvis_simulation" TYPE FILE FILES "/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src/rvis_simulation/package.xml")
 endif()
 

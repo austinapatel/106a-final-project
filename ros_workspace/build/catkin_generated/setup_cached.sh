@@ -7,10 +7,4 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel:$CMAKE_PREFIX_PATH"
-export LD_LIBRARY_PATH="/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
-export PWD="/mnt/hgfs/106a_final_project/ros_workspace/build"
-export PYTHONPATH="/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib/python2.7/dist-packages:$PYTHONPATH"
-export ROSLISP_PACKAGE_DIRECTORIES="/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
-export ROS_PACKAGE_PATH="/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src:$ROS_PACKAGE_PATH"
+export PWD='/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build'

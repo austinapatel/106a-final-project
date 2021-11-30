@@ -1,2 +1,2 @@
-lab4/src/lab4_starter/ar_track_alvar/ar_track_alvar:lab4/src/lab4_starter/ar_track_alvar/ar_track_alvar_msgs:lab4/src/lab4_starter/lab4_cam:lab4/src/lab4_starter/usb_cam:lab4/src/turtlebot_control:rvis_simulation
--DCATKIN_DEVEL_PREFIX=/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/install -G Unix Makefiles
+planning:rvis_simulation
+-DCATKIN_DEVEL_PREFIX=/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/install -G Unix Makefiles

@@ -1,8 +1,0 @@
-prefix=/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel
-
-Name: usb_cam
-Description: Description of usb_cam
-Version: 0.3.6
-Cflags: -I/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src/lab4/src/lab4_starter/usb_cam/include
-Libs: -L/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/devel/lib -lusb_cam
-Requires: 

@@ -1,5 +1,5 @@
 # generated from catkin/cmake/template/order_packages.context.py.in
-source_root_dir = "/home/eecs106a/Documents/hgfs/106a_final_project/ros_workspace/src"
-whitelisted_packages = "".split(';') if "" != "" else []
-blacklisted_packages = "".split(';') if "" != "" else []
-underlay_workspaces = "/home/eecs106a/Documents/hgfs/EECS106A-Lab/lab4/devel;/opt/ros/kinetic".split(';') if "/home/eecs106a/Documents/hgfs/EECS106A-Lab/lab4/devel;/opt/ros/kinetic" != "" else []
+source_root_dir = '/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/src'
+whitelisted_packages = ''.split(';') if '' != '' else []
+blacklisted_packages = ''.split(';') if '' != '' else []
+underlay_workspaces = '/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/devel;/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/robotiq/devel;/scratch/shared/baxter_ws/devel;/opt/ros/kinetic'.split(';') if '/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/devel;/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/robotiq/devel;/scratch/shared/baxter_ws/devel;/opt/ros/kinetic' != '' else []
