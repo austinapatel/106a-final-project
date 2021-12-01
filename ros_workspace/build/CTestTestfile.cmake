@@ -6,4 +6,9 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs(gtest)
 subdirs(rvis_simulation)
+subdirs(ar_track_alvar/ar_track_alvar_msgs)
+subdirs(lab4_cam)
+subdirs(ar_track_alvar/ar_track_alvar)
+subdirs(usb_cam)
+subdirs(move_grip)
 subdirs(planning)

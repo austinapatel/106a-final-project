@@ -4,8 +4,9 @@ Path Planning Script for Lab 7
 Author: Valmik Prabhu
 """
 import sys
-assert sys.argv[1] in ("sawyer", "baxter")
-ROBOT = sys.argv[1]
+# assert sys.argv[1] in ("sawyer", "baxter")
+# ROBOT = sys.argv[1]
+ROBOT = "sawyer"
 
 if ROBOT == "baxter":
     from baxter_interface import Limb
@@ -24,6 +25,10 @@ try:
     from controller import Controller
 except ImportError:
     pass
+
+
+import gripper_controller as gc
+from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_output  as outputMsg
     
 def main():
     """
@@ -122,63 +127,75 @@ def main():
                 raw_input("Press <Enter> to move the right arm to goal pose 1: ")
                 if not planner.execute_plan(plan):
                     raise Exception("Execution failed")
+
+                # Gripping Code
+                command = outputMsg.RobotiqVacuumGrippers_robot_output();
+                pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuumGrippers_robot_output)
+
+                command = gc.genCommand(gc.askForCommand(command), command)            
+        
+                pub.publish(command)
+
+
             except Exception as e:
                 print e
                 traceback.print_exc()
             else:
                 break
 
-        while not rospy.is_shutdown():
-            try:
-                goal_2 = PoseStamped()
-                goal_2.header.frame_id = "base"
+            
 
-                #x, y, and z position
-                goal_2.pose.position.x = 0.6
-                goal_2.pose.position.y = -0.3
-                goal_2.pose.position.z = 0.0
+        # while not rospy.is_shutdown():
+        #     try:
+        #         goal_2 = PoseStamped()
+        #         goal_2.header.frame_id = "base"
 
-                #Orientation as a quaternion
-                goal_2.pose.orientation.x = 0.0
-                goal_2.pose.orientation.y = -1.0
-                goal_2.pose.orientation.z = 0.0
-                goal_2.pose.orientation.w = 0.0
+        #         #x, y, and z position
+        #         goal_2.pose.position.x = 0.6
+        #         goal_2.pose.position.y = -0.3
+        #         goal_2.pose.position.z = 0.0
 
-                plan = planner.plan_to_pose(goal_2, [])
+        #         #Orientation as a quaternion
+        #         goal_2.pose.orientation.x = 0.0
+        #         goal_2.pose.orientation.y = -1.0
+        #         goal_2.pose.orientation.z = 0.0
+        #         goal_2.pose.orientation.w = 0.0
 
-                raw_input("Press <Enter> to move the right arm to goal pose 2: ")
-                if not planner.execute_plan(plan):
-                    raise Exception("Execution failed")
-            except Exception as e:
-                print e
-            else:
-                break
+        #         plan = planner.plan_to_pose(goal_2, [])
 
-        while not rospy.is_shutdown():
-            try:
-                goal_3 = PoseStamped()
-                goal_3.header.frame_id = "base"
+        #         raw_input("Press <Enter> to move the right arm to goal pose 2: ")
+        #         if not planner.execute_plan(plan):
+        #             raise Exception("Execution failed")
+        #     except Exception as e:
+        #         print e
+        #     else:
+        #         break
 
-                #x, y, and z position
-                goal_3.pose.position.x = 0.6
-                goal_3.pose.position.y = -0.1
-                goal_3.pose.position.z = 0.1
+        # while not rospy.is_shutdown():
+        #     try:
+        #         goal_3 = PoseStamped()
+        #         goal_3.header.frame_id = "base"
 
-                #Orientation as a quaternion
-                goal_3.pose.orientation.x = 0.0
-                goal_3.pose.orientation.y = -1.0
-                goal_3.pose.orientation.z = 0.0
-                goal_3.pose.orientation.w = 0.0
+        #         #x, y, and z position
+        #         goal_3.pose.position.x = 0.6
+        #         goal_3.pose.position.y = -0.1
+        #         goal_3.pose.position.z = 0.1
 
-                plan = planner.plan_to_pose(goal_3, [])
+        #         #Orientation as a quaternion
+        #         goal_3.pose.orientation.x = 0.0
+        #         goal_3.pose.orientation.y = -1.0
+        #         goal_3.pose.orientation.z = 0.0
+        #         goal_3.pose.orientation.w = 0.0
 
-                raw_input("Press <Enter> to move the right arm to goal pose 3: ")
-                if not planner.execute_plan(plan):
-                    raise Exception("Execution failed")
-            except Exception as e:
-                print e
-            else:
-                break
+        #         plan = planner.plan_to_pose(goal_3, [])
+
+        #         raw_input("Press <Enter> to move the right arm to goal pose 3: ")
+        #         if not planner.execute_plan(plan):
+        #             raise Exception("Execution failed")
+        #     except Exception as e:
+        #         print e
+        #     else:
+        #         break
 
 if __name__ == '__main__':
     rospy.init_node('moveit_node')

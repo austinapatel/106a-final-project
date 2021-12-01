@@ -1,2 +1,2 @@
-planning:rvis_simulation
+ar_track_alvar/ar_track_alvar:ar_track_alvar/ar_track_alvar_msgs:lab4_cam:move_grip:planning:rvis_simulation:usb_cam
 -DCATKIN_DEVEL_PREFIX=/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/install -G Unix Makefiles

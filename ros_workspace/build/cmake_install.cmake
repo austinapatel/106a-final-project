@@ -127,6 +127,11 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/gtest/cmake_install.cmake")
   include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/rvis_simulation/cmake_install.cmake")
+  include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/ar_track_alvar/ar_track_alvar_msgs/cmake_install.cmake")
+  include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/lab4_cam/cmake_install.cmake")
+  include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/ar_track_alvar/ar_track_alvar/cmake_install.cmake")
+  include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/usb_cam/cmake_install.cmake")
+  include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/move_grip/cmake_install.cmake")
   include("/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/build/planning/cmake_install.cmake")
 
 endif()
