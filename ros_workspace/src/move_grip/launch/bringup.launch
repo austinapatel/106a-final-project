@@ -15,7 +15,7 @@
         <param name="camera_frame_id" value="usb_cam" />
         <param name="io_method" value="mmap"/>
     </node>
-
+<!-- copied from  ar_track.launch from lab4 cam package-->
     <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
         <param name="marker_size"           type="double" value="$(arg marker_size)" />
         <param name="max_new_marker_error"  type="double" value="$(arg max_new_marker_error)" />
@@ -33,11 +33,14 @@
     </node>
 
     <include file="$(find sawyer_moveit_config)/launch/sawyer_moveit.launch" >
-        <arg name= "electric_gripper" value="true"/>
+        <arg name= "electric_gripper" value="false"/>
     </include>
 
     <!-- <node pkg="move_grip" name="path_test" type="path_test.py" args="sawyer" output="screen">
     </node> -->
     <node pkg="robotiq_vacuum_grippers_control" name="RobotiqVacuumGrippersRtuNode" type="RobotiqVacuumGrippersRtuNode.py" args="/dev/ttyUSB0" output="screen">
+    </node> 
+
+    <node pkg="move_grip" name="ar_tag_publisher" type="ar_tag_publisher.py" output="screen">
     </node> 
 </launch>

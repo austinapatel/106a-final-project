@@ -3,6 +3,6 @@ prefix=/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_work
 Name: move_grip
 Description: Description of move_grip
 Version: 0.0.0
-Cflags: 
+Cflags: -I/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/ros_workspace/devel/include
 Libs: -L${prefix}/lib 
 Requires: 
