@@ -36,7 +36,8 @@ def init_publisher():
         pub_time = rospy.get_time()
         # pub_input = raw_input("Please enter a line of text and press <Enter>: ")
         
-        angle=-1
+        object_robot_angle=-1
+        wall_object_angle=-1
 
         # Get the transform between the AR Tags
         rotation_quaternion = None
@@ -45,15 +46,20 @@ def init_publisher():
             source_frame = "ar_marker_1" # On the robot
             trans = tfBuffer.lookup_transform(target_frame, source_frame, rospy.Time())
             rotation_quaternion = trans.transform.rotation
-            # print(trans.transform.rotation)
-
              # Use the transform to compute the angle between the the object and the end effector
             r = R.from_quat([rotation_quaternion.x, rotation_quaternion.y, rotation_quaternion.z, rotation_quaternion.w])
             z, y, x = r.as_euler('zyx', degrees=True)
-            # print(z)
+            object_robot_angle = z
 
-            angle = z
-            timestamp_msg = MoveGripARMessage(angle, pub_time)
+            base_frame = "ar_marker_2" # On the wall
+            trans2 = tfBuffer.lookup_transform(base_frame, source_frame, rospy.Time())
+            rotation_quaternion2 = trans2.transform.rotation
+            r2 = R.from_quat([rotation_quaternion2.x, rotation_quaternion2.y, rotation_quaternion2.z, rotation_quaternion2.w])
+            z2, y2, x2 = r2.as_euler('zyx', degrees=True)
+            wall_object_angle = z2
+
+
+            timestamp_msg = MoveGripARMessage(object_robot_angle, wall_object_angle, pub_time)
             pub.publish(timestamp_msg)
             print(rospy.get_name() + ": I sent \"%s\"" % timestamp_msg)
 

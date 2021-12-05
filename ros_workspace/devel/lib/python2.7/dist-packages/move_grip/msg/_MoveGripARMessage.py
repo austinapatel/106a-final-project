@@ -8,13 +8,15 @@ import struct
 
 
 class MoveGripARMessage(genpy.Message):
-  _md5sum = "0e56a3d762472e92f3187aa263e58fa6"
+  _md5sum = "6d5beb0266670a57045cd6010a8b23d3"
   _type = "move_grip/MoveGripARMessage"
   _has_header = False  # flag to mark the presence of a Header object
-  _full_text = """float32 angle
-float64 timestamp"""
-  __slots__ = ['angle','timestamp']
-  _slot_types = ['float32','float64']
+  _full_text = """float32 object_robot_angle
+float32 wall_object_angle
+float64 timestamp
+"""
+  __slots__ = ['object_robot_angle','wall_object_angle','timestamp']
+  _slot_types = ['float32','float32','float64']
 
   def __init__(self, *args, **kwds):
     """
@@ -24,7 +26,7 @@ float64 timestamp"""
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       angle,timestamp
+       object_robot_angle,wall_object_angle,timestamp
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -33,12 +35,15 @@ float64 timestamp"""
     if args or kwds:
       super(MoveGripARMessage, self).__init__(*args, **kwds)
       # message fields cannot be None, assign default values for those that are
-      if self.angle is None:
-        self.angle = 0.
+      if self.object_robot_angle is None:
+        self.object_robot_angle = 0.
+      if self.wall_object_angle is None:
+        self.wall_object_angle = 0.
       if self.timestamp is None:
         self.timestamp = 0.
     else:
-      self.angle = 0.
+      self.object_robot_angle = 0.
+      self.wall_object_angle = 0.
       self.timestamp = 0.
 
   def _get_types(self):
@@ -54,7 +59,7 @@ float64 timestamp"""
     """
     try:
       _x = self
-      buff.write(_get_struct_fd().pack(_x.angle, _x.timestamp))
+      buff.write(_get_struct_2fd().pack(_x.object_robot_angle, _x.wall_object_angle, _x.timestamp))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -68,8 +73,8 @@ float64 timestamp"""
       end = 0
       _x = self
       start = end
-      end += 12
-      (_x.angle, _x.timestamp,) = _get_struct_fd().unpack(str[start:end])
+      end += 16
+      (_x.object_robot_angle, _x.wall_object_angle, _x.timestamp,) = _get_struct_2fd().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -83,7 +88,7 @@ float64 timestamp"""
     """
     try:
       _x = self
-      buff.write(_get_struct_fd().pack(_x.angle, _x.timestamp))
+      buff.write(_get_struct_2fd().pack(_x.object_robot_angle, _x.wall_object_angle, _x.timestamp))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -98,8 +103,8 @@ float64 timestamp"""
       end = 0
       _x = self
       start = end
-      end += 12
-      (_x.angle, _x.timestamp,) = _get_struct_fd().unpack(str[start:end])
+      end += 16
+      (_x.object_robot_angle, _x.wall_object_angle, _x.timestamp,) = _get_struct_2fd().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -108,9 +113,9 @@ _struct_I = genpy.struct_I
 def _get_struct_I():
     global _struct_I
     return _struct_I
-_struct_fd = None
-def _get_struct_fd():
-    global _struct_fd
-    if _struct_fd is None:
-        _struct_fd = struct.Struct("<fd")
-    return _struct_fd
+_struct_2fd = None
+def _get_struct_2fd():
+    global _struct_2fd
+    if _struct_2fd is None:
+        _struct_2fd = struct.Struct("<2fd")
+    return _struct_2fd

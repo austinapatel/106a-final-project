@@ -24,19 +24,24 @@ struct MoveGripARMessage_
   typedef MoveGripARMessage_<ContainerAllocator> Type;
 
   MoveGripARMessage_()
-    : angle(0.0)
+    : object_robot_angle(0.0)
+    , wall_object_angle(0.0)
     , timestamp(0.0)  {
     }
   MoveGripARMessage_(const ContainerAllocator& _alloc)
-    : angle(0.0)
+    : object_robot_angle(0.0)
+    , wall_object_angle(0.0)
     , timestamp(0.0)  {
   (void)_alloc;
     }
 
 
 
-   typedef float _angle_type;
-  _angle_type angle;
+   typedef float _object_robot_angle_type;
+  _object_robot_angle_type object_robot_angle;
+
+   typedef float _wall_object_angle_type;
+  _wall_object_angle_type wall_object_angle;
 
    typedef double _timestamp_type;
   _timestamp_type timestamp;
@@ -119,12 +124,12 @@ struct MD5Sum< ::move_grip::MoveGripARMessage_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "0e56a3d762472e92f3187aa263e58fa6";
+    return "6d5beb0266670a57045cd6010a8b23d3";
   }
 
   static const char* value(const ::move_grip::MoveGripARMessage_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x0e56a3d762472e92ULL;
-  static const uint64_t static_value2 = 0xf3187aa263e58fa6ULL;
+  static const uint64_t static_value1 = 0x6d5beb0266670a57ULL;
+  static const uint64_t static_value2 = 0x045cd6010a8b23d3ULL;
 };
 
 template<class ContainerAllocator>
@@ -143,7 +148,8 @@ struct Definition< ::move_grip::MoveGripARMessage_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float32 angle\n\
+    return "float32 object_robot_angle\n\
+float32 wall_object_angle\n\
 float64 timestamp\n\
 ";
   }
@@ -163,7 +169,8 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
-      stream.next(m.angle);
+      stream.next(m.object_robot_angle);
+      stream.next(m.wall_object_angle);
       stream.next(m.timestamp);
     }
 
@@ -183,8 +190,10 @@ struct Printer< ::move_grip::MoveGripARMessage_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::move_grip::MoveGripARMessage_<ContainerAllocator>& v)
   {
-    s << indent << "angle: ";
-    Printer<float>::stream(s, indent + "  ", v.angle);
+    s << indent << "object_robot_angle: ";
+    Printer<float>::stream(s, indent + "  ", v.object_robot_angle);
+    s << indent << "wall_object_angle: ";
+    Printer<float>::stream(s, indent + "  ", v.wall_object_angle);
     s << indent << "timestamp: ";
     Printer<double>::stream(s, indent + "  ", v.timestamp);
   }

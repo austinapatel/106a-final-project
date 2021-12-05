@@ -18,15 +18,22 @@ class MoveGripARMessage {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.angle = null;
+      this.object_robot_angle = null;
+      this.wall_object_angle = null;
       this.timestamp = null;
     }
     else {
-      if (initObj.hasOwnProperty('angle')) {
-        this.angle = initObj.angle
+      if (initObj.hasOwnProperty('object_robot_angle')) {
+        this.object_robot_angle = initObj.object_robot_angle
       }
       else {
-        this.angle = 0.0;
+        this.object_robot_angle = 0.0;
+      }
+      if (initObj.hasOwnProperty('wall_object_angle')) {
+        this.wall_object_angle = initObj.wall_object_angle
+      }
+      else {
+        this.wall_object_angle = 0.0;
       }
       if (initObj.hasOwnProperty('timestamp')) {
         this.timestamp = initObj.timestamp
@@ -39,8 +46,10 @@ class MoveGripARMessage {
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type MoveGripARMessage
-    // Serialize message field [angle]
-    bufferOffset = _serializer.float32(obj.angle, buffer, bufferOffset);
+    // Serialize message field [object_robot_angle]
+    bufferOffset = _serializer.float32(obj.object_robot_angle, buffer, bufferOffset);
+    // Serialize message field [wall_object_angle]
+    bufferOffset = _serializer.float32(obj.wall_object_angle, buffer, bufferOffset);
     // Serialize message field [timestamp]
     bufferOffset = _serializer.float64(obj.timestamp, buffer, bufferOffset);
     return bufferOffset;
@@ -50,15 +59,17 @@ class MoveGripARMessage {
     //deserializes a message object of type MoveGripARMessage
     let len;
     let data = new MoveGripARMessage(null);
-    // Deserialize message field [angle]
-    data.angle = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [object_robot_angle]
+    data.object_robot_angle = _deserializer.float32(buffer, bufferOffset);
+    // Deserialize message field [wall_object_angle]
+    data.wall_object_angle = _deserializer.float32(buffer, bufferOffset);
     // Deserialize message field [timestamp]
     data.timestamp = _deserializer.float64(buffer, bufferOffset);
     return data;
   }
 
   static getMessageSize(object) {
-    return 12;
+    return 16;
   }
 
   static datatype() {
@@ -68,14 +79,16 @@ class MoveGripARMessage {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '0e56a3d762472e92f3187aa263e58fa6';
+    return '6d5beb0266670a57045cd6010a8b23d3';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    float32 angle
+    float32 object_robot_angle
+    float32 wall_object_angle
     float64 timestamp
+    
     `;
   }
 
@@ -85,11 +98,18 @@ class MoveGripARMessage {
       msg = {};
     }
     const resolved = new MoveGripARMessage(null);
-    if (msg.angle !== undefined) {
-      resolved.angle = msg.angle;
+    if (msg.object_robot_angle !== undefined) {
+      resolved.object_robot_angle = msg.object_robot_angle;
     }
     else {
-      resolved.angle = 0.0
+      resolved.object_robot_angle = 0.0
+    }
+
+    if (msg.wall_object_angle !== undefined) {
+      resolved.wall_object_angle = msg.wall_object_angle;
+    }
+    else {
+      resolved.wall_object_angle = 0.0
     }
 
     if (msg.timestamp !== undefined) {

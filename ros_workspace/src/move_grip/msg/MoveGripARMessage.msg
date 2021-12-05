@@ -1,2 +1,3 @@
-float32 angle
+float32 object_robot_angle
+float32 wall_object_angle
 float64 timestamp
