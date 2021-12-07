@@ -30,7 +30,9 @@ def init_publisher():
     tfListener = tf2_ros.TransformListener(tfBuffer)
 
     # Loop until the node is killed with Ctrl-C
+    i = -1
     while not rospy.is_shutdown():
+        i += 1
         # Construct a string that we want to publish (in Python, the "%"
         # operator functions similarly to sprintf in C or MATLAB)
         pub_time = rospy.get_time()
@@ -51,6 +53,14 @@ def init_publisher():
             z, y, x = r.as_euler('zyx', degrees=True)
             object_robot_angle = z
 
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            if i % 100 == 0:
+                print("Bad Transform for Object-Robot")
+
+        rotation_quaternion2 = None
+        try:
+            # print("Hello")
+            source_frame = "ar_marker_0" # On the object
             base_frame = "ar_marker_2" # On the wall
             trans2 = tfBuffer.lookup_transform(base_frame, source_frame, rospy.Time())
             rotation_quaternion2 = trans2.transform.rotation
@@ -58,13 +68,17 @@ def init_publisher():
             z2, y2, x2 = r2.as_euler('zyx', degrees=True)
             wall_object_angle = z2
 
-
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            if i % 100 == 0:
+                print("Bad Transform for Wall-Object")
+        
+        # print("Object angle: ", object_robot_angle)
+        # print("Wall angle: ", wall_object_angle)
+        if not (object_robot_angle == -1 and wall_object_angle == -1):
             timestamp_msg = MoveGripARMessage(object_robot_angle, wall_object_angle, pub_time)
             pub.publish(timestamp_msg)
-            print(rospy.get_name() + ": I sent \"%s\"" % timestamp_msg)
-
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            print("Bad Transform")
+            if i % 50 == 0:
+                print(rospy.get_name() + ": I sent \"%s\"" % timestamp_msg)
         
         # Use our rate object to sleep until it is time to publish again
         rate.sleep()

@@ -31,10 +31,14 @@ except ImportError:
 import gripper_controller as gc
 from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_output  as outputMsg
 from move_grip.msg import MoveGripARMessage
+from scipy.spatial.transform import Rotation as R
 
-object_robot_angle = -1
-wall_object_angle = -1
+object_robot_angle = None
+wall_object_angle = None
 
+def to_quat(euler):
+    r = R.from_euler('xyz', euler, degrees=True)
+    return r.as_quat()
 
 # Define the callback method which is called whenever this node receives a 
 # message on its subscribed topic. The received message is passed as the first
@@ -45,8 +49,8 @@ def callback(message):
     # Print the contents of the message to the console
     # print("Message: %s, Sent at: %f, Received at: %f" % (message.message, message.timestamp, rospy.get_time()))
     # rospy.loginfo(message)
-    object_robot_angle = message.object_robot_angle
-    wall_object_angle = message.wall_object_angle
+    object_robot_angle = message.object_robot_angle if not np.isclose(message.object_robot_angle, -1) else object_robot_angle  
+    wall_object_angle = message.wall_object_angle if not np.isclose(message.wall_object_angle, -1) else object_robot_angle 
 
 # Define the method which contains the node's main functionality
 def listener():
@@ -93,18 +97,19 @@ def main():
 
     # #Create a path constraint for the arm
     # #UNCOMMENT FOR THE ORIENTATION CONSTRAINTS PART
-    orientation = [0.0, 1.0, 0.0, 0.0] # Robot Gripper 
-    orien_const = OrientationConstraint()
-    orien_const.link_name = "right_gripper"
-    orien_const.header.frame_id = "base"
-    orien_const.orientation.x = orientation[0]
-    orien_const.orientation.y = orientation[1]
-    orien_const.orientation.z = orientation[2]
-    orien_const.orientation.w = orientation[3]
-    orien_const.absolute_x_axis_tolerance = 0.1 # default 0.1
-    orien_const.absolute_y_axis_tolerance = 0.1
-    orien_const.absolute_z_axis_tolerance = 0.1
-    orien_const.weight = 1.0
+    orientation_original = [-90, 0, -90] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
+
+    # orien_const = OrientationConstraint()
+    # orien_const.link_name = "right_gripper"
+    # orien_const.header.frame_id = "base"
+    # orien_const.orientation.x = orientation_original[0]
+    # orien_const.orientation.y = orientation_original[1]
+    # orien_const.orientation.z = orientation_original[2]
+    # orien_const.orientation.w = orientation_original[3]
+    # orien_const.absolute_x_axis_tolerance = 0.1 # default 0.1
+    # orien_const.absolute_y_axis_tolerance = 0.1
+    # orien_const.absolute_z_axis_tolerance = 0.1
+    # orien_const.weight = 1.0
     
     # planner.add_box_obstacle(size=np.array([0.40, 1.20, 0.10]), name="Table", pose=p)
     # planner.add_box_obstacle(size=np.array([0.40, 1.20, 0.10]), name="Wall", pose=p2)
@@ -122,52 +127,57 @@ def main():
 
     positions = [
                     [0.840, 0.094, 0.125],  # original
+                    [0.707, 0.158, 0.456],  # Flat position
                     # [0.840, 0.094, 0.2],  # Move up along z axis
-                    [0.841, -0.160, 0.265], # Move to custom position
-                    [0.727, -0.420, 0.125], # Move to drop off location
-                    [0.841, -0.160, 0.265], # Move back to custom
-                    [0.727, -0.420, 0.125], # Move to drop off location
-                    [0.841, -0.160, 0.265], # Move back to custom
+                    # [0.841, -0.160, 0.265], # Move to custom position
+                    # [0.727, -0.420, 0.125], # Move to drop off location
+                    # [0.841, -0.160, 0.265], # Move back to custom
+                    # [0.727, -0.420, 0.125], # Move to drop off location
+                    # [0.841, -0.160, 0.265], # Move back to custom
                     [0.840, 0.094, 0.125],  # Move to original
                  ] #.155
 
-    orientations = [orientation for _ in positions]
+    orientations = [orientation_original for _ in positions]
+    orientations[1] = [-90, 0, -90] #[0.7, 0, 0.7, 0] #[0.5, -0.5, 0.5, -0.5]
 
     goals = [PoseStamped() for _ in positions]
-    
+    orientation_original
     # Construct Goals from Positions and Orientations
-    for goal, position, orientation in zip(goals, positions, orientations):
+    for i, (goal, position, orientation) in enumerate(zip(goals, positions, orientations)):
         # print(goal)
         print(position)
         print(orientation)
         print("\n")
-        goal = PoseStamped()
-        goal.header.frame_id = "base"
+        goals[i].header.frame_id = "base"
+
+        # convert euler to quat
+        orientation = to_quat(orientation)
 
         #x, y, and z position
-        goal.pose.position.x = position[0]
-        goal.pose.position.y = position[1]
-        goal.pose.position.z = position[2]
+        goals[i].pose.position.x = position[0]
+        goals[i].pose.position.y = position[1]
+        goals[i].pose.position.z = position[2]
 
-        goal.pose.orientation.x = orientation[0]
-        goal.pose.orientation.y = orientation[1]
-        goal.pose.orientation.z = orientation[2]
-        goal.pose.orientation.w = orientation[3]
+        goals[i].pose.orientation.x = orientation[0]
+        goals[i].pose.orientation.y = orientation[1]
+        goals[i].pose.orientation.z = orientation[2]
+        goals[i].pose.orientation.w = orientation[3]
 
     grips = ['g', None, 'c', None, 'g', None,'c']
     
     while not rospy.is_shutdown():
         for i, (goal, grip) in enumerate(zip(goals, grips)):
             try:
+                print(goal)
                 # Might have to edit this . . . 
-                plan = planner.plan_to_pose(goal, [orien_const])
+                plan = planner.plan_to_pose(goal, [])
 
                 raw_input("Press <Enter> to move the arm to goal pose " + str(i) + "\n\tAngle between object-robot: " + str(object_robot_angle) + "\n\tAngle between wall-object: " + str(wall_object_angle))
                 if not planner.execute_plan(plan):
                     raise Exception("Execution failed")
 
                 if grip:
-                    command = gc.genCommand(grip, command)   # do someting
+                    command = gc.genCommand(grip, command)   # do something
                     pub.publish(command)
 
             except Exception as e:
@@ -181,8 +191,9 @@ def calc_k(mass, theta):
     G = 9.81
     d = 0.025 # 2.5 cm (length of small vacuum gripper)
 
+    spring_constant_k = (mass*G*d)/theta
 
-    return (mass*G*d)/theta
+    return spring_constant_k
 
 # Step 1: Find angle
 # Step 2: Use angle to find k
@@ -190,7 +201,7 @@ def calc_k(mass, theta):
 # Step 4: Calculate the pose of the end effector to make angle of object relative to base frame 0. (straighten object)
     # Step 4a: Add tag to base of robot
     # Step 4b: Track angle between object and base ar_tags
-    # Step 4c: Figure out the angle needed between the vacuum gripper and object that makes the angle between the object and base frame equal to 0
+    # Step 4c: Control the angle needed between the vacuum gripper and object that makes the angle between the object and base frame equal to 0
 
 def calc_angle(mass, k):
     """ Figures out new angle for object given k and the object's mass """
