@@ -1,17 +1,6 @@
 #!/usr/bin/env python
-"""
-Path Planning Script for Lab 7
-Author: Valmik Prabhu
-"""
 import sys
-# assert sys.argv[1] in ("sawyer", "baxter")
-# ROBOT = sys.argv[1]
-ROBOT = "sawyer"
-
-if ROBOT == "baxter":
-    from baxter_interface import Limb
-else:
-    from intera_interface import Limb
+from intera_interface import Limb
 
 import rospy
 import numpy as np
@@ -26,165 +15,130 @@ try:
     from controller import Controller
 except ImportError:
     pass
-
-
 import gripper_controller as gc
 from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_output  as outputMsg
 from move_grip.msg import MoveGripARMessage
 from scipy.spatial.transform import Rotation as R
 
+#Define global variables
 object_robot_angle = None
 wall_object_angle = None
+
+planner = PathPlanner("right_arm")
+command = outputMsg.RobotiqVacuumGrippers_robot_output()
+pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuumGrippers_robot_output)
+
+
 
 def to_quat(euler):
     r = R.from_euler('xyz', euler, degrees=True)
     return r.as_quat()
 
-# Define the callback method which is called whenever this node receives a 
-# message on its subscribed topic. The received message is passed as the first
-# argument to callback().
-def callback(message):
-    global object_robot_angle
-    global wall_object_angle
-    # Print the contents of the message to the console
-    # print("Message: %s, Sent at: %f, Received at: %f" % (message.message, message.timestamp, rospy.get_time()))
-    # rospy.loginfo(message)
-    object_robot_angle = message.object_robot_angle if not np.isclose(message.object_robot_angle, -1) else object_robot_angle  
-    wall_object_angle = message.wall_object_angle if not np.isclose(message.wall_object_angle, -1) else object_robot_angle 
-
-# Define the method which contains the node's main functionality
-def listener():
-
-    # Create a new instance of the rospy.Subscriber object which we can use to
-    # receive messages of type std_msgs/String from the topic /chatter_talk.
-    # Whenever a new message is received, the method callback() will be called
-    # with the received message as its first argument.
-    rospy.Subscriber("move_grip_ar_tag",MoveGripARMessage, callback)
-
-    # Wait for messages to arrive on the subscribed topics, and exit the node
-    # when it is killed with Ctrl+C
-    # rospy.spin()
-
-
-def main():
-    """
-    Main Script
-    """
-
-    listener()
-
-    # Make sure that you've looked at and understand path_planner.py before starting
-
-    planner = PathPlanner("right_arm")
-    
-
-    if ROBOT == "sawyer":
-        Kp = 0.2 * np.array([0.4, 2, 1.7, 1.5, 2, 2, 3])
-        Kd = 0.01 * np.array([2, 1, 2, 0.5, 0.8, 0.8, 0.8])
-        Ki = 0.01 * np.array([1.4, 1.4, 1.4, 1, 0.6, 0.6, 0.6])
-        Kw = np.array([0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9])
-    else:
-        Kp = 0.45 * np.array([0.8, 2.5, 1.7, 2.2, 2.4, 3, 4])
-        Kd = 0.015 * np.array([2, 1, 2, 0.5, 0.8, 0.8, 0.8])
-        Ki = 0.01 * np.array([1.4, 1.4, 1.4, 1, 0.6, 0.6, 0.6])
-        Kw = np.array([0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9])
-
-
-    controller = Controller(Kp, Ki, Kd, Kw, Limb("right"))
-    ##
-    ## Add the obstacle to the planning scene here
-    ##
-
-    # #Create a path constraint for the arm
-    # #UNCOMMENT FOR THE ORIENTATION CONSTRAINTS PART
-    orientation_original = [-90, 0, -90] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
-
-    # orien_const = OrientationConstraint()
-    # orien_const.link_name = "right_gripper"
-    # orien_const.header.frame_id = "base"
-    # orien_const.orientation.x = orientation_original[0]
-    # orien_const.orientation.y = orientation_original[1]
-    # orien_const.orientation.z = orientation_original[2]
-    # orien_const.orientation.w = orientation_original[3]
-    # orien_const.absolute_x_axis_tolerance = 0.1 # default 0.1
-    # orien_const.absolute_y_axis_tolerance = 0.1
-    # orien_const.absolute_z_axis_tolerance = 0.1
-    # orien_const.weight = 1.0
-    
-    # planner.add_box_obstacle(size=np.array([0.40, 1.20, 0.10]), name="Table", pose=p)
-    # planner.add_box_obstacle(size=np.array([0.40, 1.20, 0.10]), name="Wall", pose=p2)
-    # planner.remove_obstacle("box")
-
-    # Gripping Startup Code
-    command = outputMsg.RobotiqVacuumGrippers_robot_output();
-    pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuumGrippers_robot_output)
+# Gripping Startup Code -- run before moving to pose
+def gripper_startup():
+    global command
     command = gc.genCommand('a', command)     #activate 
     pub.publish(command)
     time.sleep(1)
     command = gc.genCommand('c', command)   #release
     pub.publish(command)
 
+#Function for moving to a specified location
+def go_to_pose(position, euler_angles, grip):
+    global command
+    goal = PoseStamped()
 
-    positions = [
-                    [0.840, 0.094, 0.125],  # original
-                    [0.707, 0.158, 0.456],  # Flat position
-                    # [0.840, 0.094, 0.2],  # Move up along z axis
-                    # [0.841, -0.160, 0.265], # Move to custom position
-                    # [0.727, -0.420, 0.125], # Move to drop off location
-                    # [0.841, -0.160, 0.265], # Move back to custom
-                    # [0.727, -0.420, 0.125], # Move to drop off location
-                    # [0.841, -0.160, 0.265], # Move back to custom
-                    [0.840, 0.094, 0.125],  # Move to original
-                 ] #.155
-
-    orientations = [orientation_original for _ in positions]
-    orientations[1] = [-90, 0, -90] #[0.7, 0, 0.7, 0] #[0.5, -0.5, 0.5, -0.5]
-
-    goals = [PoseStamped() for _ in positions]
-    orientation_original
     # Construct Goals from Positions and Orientations
-    for i, (goal, position, orientation) in enumerate(zip(goals, positions, orientations)):
-        # print(goal)
-        print(position)
-        print(orientation)
-        print("\n")
-        goals[i].header.frame_id = "base"
+    goal.header.frame_id = "base"
+    # convert euler to quat
+    orientation = to_quat(euler_angles)
 
-        # convert euler to quat
-        orientation = to_quat(orientation)
+    #x, y, and z position
+    goal.pose.position.x = position[0]
+    goal.pose.position.y = position[1]
+    goal.pose.position.z = position[2]
 
-        #x, y, and z position
-        goals[i].pose.position.x = position[0]
-        goals[i].pose.position.y = position[1]
-        goals[i].pose.position.z = position[2]
+    goal.pose.orientation.x = orientation[0]
+    goal.pose.orientation.y = orientation[1]
+    goal.pose.orientation.z = orientation[2]
+    goal.pose.orientation.w = orientation[3]
 
-        goals[i].pose.orientation.x = orientation[0]
-        goals[i].pose.orientation.y = orientation[1]
-        goals[i].pose.orientation.z = orientation[2]
-        goals[i].pose.orientation.w = orientation[3]
+    #move
+    try:
+        # Might have to edit this . . . 
+        plan = planner.plan_to_pose(goal, [])
 
-    grips = ['g', None, 'c', None, 'g', None,'c']
+        raw_input("Press <Enter> to move the arm to goal pose " + "\n\tAngle between object-robot: " + str(object_robot_angle) + "\n\tAngle between wall-object: " + str(wall_object_angle))
+        if not planner.execute_plan(plan):
+            raise Exception("Execution failed")
+
+        if grip:
+            command = gc.genCommand(grip, command)   # do something
+            pub.publish(command)
+
+    except Exception as e:
+        print e 
+        traceback.print_exc()
+
+# def straighten_object():
+
+
+def callback(message):
+    global object_robot_angle
+    global wall_object_angle
+    object_robot_angle = message.object_robot_angle if not np.isclose(message.object_robot_angle, -1) else object_robot_angle  
+    wall_object_angle = message.wall_object_angle if not np.isclose(message.wall_object_angle, -1) else object_robot_angle 
+
+# Define the method which contains the node's main functionality
+def listener():
+    rospy.Subscriber("move_grip_ar_tag",MoveGripARMessage, callback)
+
+def find_k_increments(increment):
+    orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
+    default_pos = [0.864, 0.108, 0.311]
+    go_to_pose(default_pos, orientation_original, None)
+
+    go_to_pose([0.840, 0.094, 0.15], orientation_original, None) #slightly above to align object with gripper
+    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g')
+    go_to_pose([0.840, 0.094, 0.3], orientation_original, None) #move up
+    y_angle = 0
+    while (y_angle < 180):
+        print(y_angle)
+        go_to_pose([0.840, 0.094, 0.3], [-180, y_angle, -180] , None)
+        y_angle = y_angle + increment
+        time.sleep(3)
+        print("Done sleeping")
+    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'c')
+
+
+
+
+
+
+def main():
+    """
+    Main Script
+    """
+    listener()
+    gripper_startup()
+    find_k_increments(15)
+
+    # orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
+    # default_pos = [0.864, 0.108, 0.311]
+
+    # go_to_pose(default_pos, orientation_original, None)
+
+    # go_to_pose([0.840, 0.094, 0.2], orientation_original, None)
+    # go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g')
+    # go_to_pose([0.707, 0.158, 0.456], [-180, 90, -180], None) #Flat position
+
+    # rospy.sleep(3)
+
+    # go_to_pose([0.707, 0.158, 0.456], [-180, 90 + 90 - wall_object_angle, -180], None) #Flat position
+
+    # go_to_pose([0.840, 0.094, 0.2], orientation_original, None)
+    # go_to_pose([0.840, 0.094, 0.10], orientation_original, 'c')
     
-    while not rospy.is_shutdown():
-        for i, (goal, grip) in enumerate(zip(goals, grips)):
-            try:
-                print(goal)
-                # Might have to edit this . . . 
-                plan = planner.plan_to_pose(goal, [])
-
-                raw_input("Press <Enter> to move the arm to goal pose " + str(i) + "\n\tAngle between object-robot: " + str(object_robot_angle) + "\n\tAngle between wall-object: " + str(wall_object_angle))
-                if not planner.execute_plan(plan):
-                    raise Exception("Execution failed")
-
-                if grip:
-                    command = gc.genCommand(grip, command)   # do something
-                    pub.publish(command)
-
-            except Exception as e:
-                print e 
-                traceback.print_exc()
-            # else:
-            #     break
 
 # Move to utils later
 def calc_k(mass, theta):

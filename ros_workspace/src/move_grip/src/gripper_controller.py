@@ -57,7 +57,7 @@ def genCommand(char, command):
         command.rGTO = 1
 	command.rPR = 0
         command.rSP  = 150
-        command.rFR  = 50
+        command.rFR  = 255 # default was 50 # max is 255
 
     if char == 'r':
         command = outputMsg.RobotiqVacuumGrippers_robot_output();
