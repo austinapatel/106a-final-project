@@ -31,6 +31,8 @@ pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuu
 orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
 
 
+
+
 def to_quat(euler):
     r = R.from_euler('xyz', euler, degrees=True)
     return r.as_quat()
@@ -45,7 +47,7 @@ def gripper_startup():
     pub.publish(command)
 
 #Function for moving to a specified location
-def go_to_pose(position, euler_angles, grip):
+def go_to_pose(position, euler_angles, grip, enter=True):
     global command
     goal = PoseStamped()
 
@@ -69,7 +71,10 @@ def go_to_pose(position, euler_angles, grip):
         # Might have to edit this . . . 
         plan = planner.plan_to_pose(goal, [])
 
-        raw_input("Press <Enter> to move the arm to goal pose " + "\n\tAngle between object-robot: " + str(object_robot_angle) + "\n\tAngle between wall-object: " + str(wall_object_angle))
+        if (enter):
+            raw_input("Press <Enter> to move the arm to goal pose " + "\n\tAngle between object-robot: " + str(object_robot_angle) + "\n\tAngle between wall-object: " + str(wall_object_angle))
+        else:
+            time.sleep(1)
         if not planner.execute_plan(plan):
             raise Exception("Execution failed")
 
@@ -108,19 +113,20 @@ def find_k_increments(increment):
     object_robot_measurements = {}
 
     y_angle = 0
-    while y_angle < 180:
-        print(y_angle)
+    while y_angle < 140:
+        print("about to do " + str(y_angle))
         go_to_pose([0.840, 0.094, 0.3], [-180, y_angle, -180] , None)
         time.sleep(3)
 
         wall_object_measurements[y_angle] = wall_object_angle
         object_robot_measurements[y_angle] = object_robot_angle
         print('Took measurement for %s!' % y_angle)
+        print("For angle %s, we have wall object angle %s and object robot angle %s" % (y_angle, wall_object_angle, object_robot_angle))
         y_angle = y_angle + increment
 
     print('Here are the measurements:')
     print(wall_object_measurements)
-    print(object_robot_angle)
+    print(object_robot_measurements)
 
     drop_object()
 
@@ -141,7 +147,7 @@ def goto_initial_pos():
     go_to_pose([0.864, 0.108, 0.311], orientation_original, None)
 
 
-def feedback_control_level_out(tolerance=10):
+def feedback_control_level_out(tolerance=5, goal=90, proportional_constant=0.5):
     """
     Closed loop feedback controller to level out the object held by the gripper
     """
@@ -149,10 +155,15 @@ def feedback_control_level_out(tolerance=10):
     rospy.sleep(3) # wait for object to stabilize
 
     # closed loop control to get to desired position
-    while wall_object_angle > tolerance:
-        print('Wall object angle is %s which is above tolerance of %s. Fixing...' % (wall_object_angle, tolerance))
-        go_to_pose([0.707, 0.158, 0.456], [-180, 90 + 90 - wall_object_angle, -180], None) # Flat position
-        rospy.sleep(3)
+    curr = 0
+    print('starting closed loop feedback control')
+    while np.abs(goal - wall_object_angle) > tolerance:
+        print('Wall object error is %s which is above tolerance of %s. Fixing...' % (goal - wall_object_angle, tolerance))
+        curr += proportional_constant*(goal - wall_object_angle)
+        print("going to move to %s" % curr)
+        go_to_pose([0.707, 0.158, 0.456], [-180, curr, -180], None, False) # Flat position
+        
+        rospy.sleep(1)
 
     print('Wall object angle converged to %s' % wall_object_angle)
 
@@ -162,6 +173,23 @@ def feedback_control_demo():
     goto_initial_pos()
     feedback_control_level_out()
 
+def add_constraint(title, position, orientation, size):
+    #Table Constraint
+    p = PoseStamped()
+    p.header.frame_id = "base"
+    #x, y, and z position
+    p.pose.position.x = position[0]
+    p.pose.position.y = position[1]
+    p.pose.position.z = position[2]
+
+    #Orientation as a quaternion
+    p.pose.orientation.x = orientation[0]
+    p.pose.orientation.y = orientation[1]
+    p.pose.orientation.z = orientation[2]
+    p.pose.orientation.w = orientation[3]
+    planner.add_box_obstacle(size=np.array(size), name=title, pose=p)
+
+
 def main():
     """
     Main Script
@@ -169,6 +197,10 @@ def main():
     init_ar_tag_listener()
     gripper_startup()
     # find_k_increments(15)
+    add_constraint("Table", [.5,0,0], [0,0,0,1], [0.40, 1.20, 0.10]) #Table
+    add_constraint("Box", [.5,0.6, .05 + 0.3048/2],[0,0,0,1],[0.3048, 0.3048, 0.3048]) #Box
+
+
     feedback_control_demo()
 
 # Move to utils later
