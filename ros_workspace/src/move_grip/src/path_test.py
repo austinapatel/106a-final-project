@@ -28,6 +28,7 @@ planner = PathPlanner("right_arm")
 command = outputMsg.RobotiqVacuumGrippers_robot_output()
 pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuumGrippers_robot_output)
 
+orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
 
 
 def to_quat(euler):
@@ -80,9 +81,6 @@ def go_to_pose(position, euler_angles, grip):
         print e 
         traceback.print_exc()
 
-# def straighten_object():
-
-
 def callback(message):
     global object_robot_angle
     global wall_object_angle
@@ -90,55 +88,88 @@ def callback(message):
     wall_object_angle = message.wall_object_angle if not np.isclose(message.wall_object_angle, -1) else object_robot_angle 
 
 # Define the method which contains the node's main functionality
-def listener():
+def init_ar_tag_listener():
     rospy.Subscriber("move_grip_ar_tag",MoveGripARMessage, callback)
 
 def find_k_increments(increment):
-    orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
-    default_pos = [0.864, 0.108, 0.311]
-    go_to_pose(default_pos, orientation_original, None)
+    # default_pos = [0.864, 0.108, 0.311]
+    # go_to_pose(default_pos, orientation_original, None)
+    #
+    # go_to_pose([0.840, 0.094, 0.15], orientation_original, None) #slightly above to align object with gripper
+    # go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g')
 
-    go_to_pose([0.840, 0.094, 0.15], orientation_original, None) #slightly above to align object with gripper
-    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g')
-    go_to_pose([0.840, 0.094, 0.3], orientation_original, None) #move up
+
+    # go_to_pose([0.840, 0.094, 0.3], orientation_original, None) #move up
+    goto_initial_pos()
+    pickup_object()
+    goto_initial_pos()
+
+    wall_object_measurements = {}
+    object_robot_measurements = {}
+
     y_angle = 0
-    while (y_angle < 180):
+    while y_angle < 180:
         print(y_angle)
         go_to_pose([0.840, 0.094, 0.3], [-180, y_angle, -180] , None)
-        y_angle = y_angle + increment
         time.sleep(3)
-        print("Done sleeping")
-    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'c')
+
+        wall_object_measurements[y_angle] = wall_object_angle
+        object_robot_measurements[y_angle] = object_robot_angle
+        print('Took measurement for %s!' % y_angle)
+        y_angle = y_angle + increment
+
+    print('Here are the measurements:')
+    print(wall_object_measurements)
+    print(object_robot_angle)
+
+    drop_object()
 
 
+def pickup_object():
+    go_to_pose([0.840, 0.094, 0.2], orientation_original, None) # slightly above object
+    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g') # grab object
+
+def drop_object():
+    # go_to_pose([0.840, 0.094, 0.2], orientation_original, None) # slightly above object
+    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'c') # grab object
 
 
+def goto_initial_pos():
+    """
+    Go to initial arm location
+    """
+    go_to_pose([0.864, 0.108, 0.311], orientation_original, None)
 
+
+def feedback_control_level_out(tolerance=10):
+    """
+    Closed loop feedback controller to level out the object held by the gripper
+    """
+    # go_to_pose([0.707, 0.158, 0.456], [-180, 90, -180], None) # Gripper parallel to groun
+    rospy.sleep(3) # wait for object to stabilize
+
+    # closed loop control to get to desired position
+    while wall_object_angle > tolerance:
+        print('Wall object angle is %s which is above tolerance of %s. Fixing...' % (wall_object_angle, tolerance))
+        go_to_pose([0.707, 0.158, 0.456], [-180, 90 + 90 - wall_object_angle, -180], None) # Flat position
+        rospy.sleep(3)
+
+    print('Wall object angle converged to %s' % wall_object_angle)
+
+def feedback_control_demo():
+    goto_initial_pos()
+    pickup_object()
+    goto_initial_pos()
+    feedback_control_level_out()
 
 def main():
     """
     Main Script
     """
-    listener()
+    init_ar_tag_listener()
     gripper_startup()
-    find_k_increments(15)
-
-    # orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
-    # default_pos = [0.864, 0.108, 0.311]
-
-    # go_to_pose(default_pos, orientation_original, None)
-
-    # go_to_pose([0.840, 0.094, 0.2], orientation_original, None)
-    # go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g')
-    # go_to_pose([0.707, 0.158, 0.456], [-180, 90, -180], None) #Flat position
-
-    # rospy.sleep(3)
-
-    # go_to_pose([0.707, 0.158, 0.456], [-180, 90 + 90 - wall_object_angle, -180], None) #Flat position
-
-    # go_to_pose([0.840, 0.094, 0.2], orientation_original, None)
-    # go_to_pose([0.840, 0.094, 0.10], orientation_original, 'c')
-    
+    # find_k_increments(15)
+    feedback_control_demo()
 
 # Move to utils later
 def calc_k(mass, theta):
