@@ -167,11 +167,40 @@ def feedback_control_level_out(tolerance=5, goal=90, proportional_constant=0.5):
 
     print('Wall object angle converged to %s' % wall_object_angle)
 
+    return [-180, curr, -180]
+
 def feedback_control_demo():
     goto_initial_pos()
     pickup_object()
     goto_initial_pos()
     feedback_control_level_out()
+
+def go_to_box(orientation):
+    box_height=-0.15
+    time.sleep(2)
+    # go_to_pose([0.362, 0.563, 0.186], orientation, None) # intermediate pos
+    # time.sleep(2)
+
+    # go in the box
+    # go_to_pose([0.308, 0.616, box_height], orientation, None) #z orignally -0.013 # level with box
+    # time.sleep(2)
+    # go_to_pose([0.55, 0.616, box_height], orientation, 'c') #z orignally -0.013 # into box
+
+
+    # go on top of the box
+    go_to_pose([0.777, 0.435, 0.2], orientation, None)
+    time.sleep(2)
+    go_to_pose([0.930, 0.380, 0.2], orientation, 'c')
+
+
+def go_into_box_demo():
+    goto_initial_pos()
+    pickup_object()
+    goto_initial_pos()
+    level_orientation = feedback_control_level_out()
+    # level_orientation = [-180 ,136.83, -180]
+    go_to_box(level_orientation)
+    # go_to_box(orientation_original)
 
 def add_constraint(title, position, orientation, size):
     #Table Constraint
@@ -189,6 +218,9 @@ def add_constraint(title, position, orientation, size):
     p.pose.orientation.w = orientation[3]
     planner.add_box_obstacle(size=np.array(size), name=title, pose=p)
 
+def remove_constraint(title):
+    planner.remove_obstacle(title)
+
 
 def main():
     """
@@ -197,11 +229,13 @@ def main():
     init_ar_tag_listener()
     gripper_startup()
     # find_k_increments(15)
-    add_constraint("Table", [.5,0,0], [0,0,0,1], [0.40, 1.20, 0.10]) #Table
-    add_constraint("Box", [.5,0.6, .05 + 0.3048/2],[0,0,0,1],[0.3048, 0.3048, 0.3048]) #Box
+    add_constraint("Table", [1.1,.2,-.2], [0,0,0,1], [0.40, 1.20, 0.10]) #Table
+    # add_constraint("Box", [1,0.6, .05 + 0.3048/2 - .2],[0,0,0,1],[0.3048, 0.3048, 0.3048]) #Box
+    # remove_constraint("Box")
+    # remove_constraint('Table')
 
-
-    feedback_control_demo()
+    # feedback_control_demo()
+    go_into_box_demo()
 
 # Move to utils later
 def calc_k(mass, theta):
