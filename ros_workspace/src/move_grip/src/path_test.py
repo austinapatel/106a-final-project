@@ -76,6 +76,10 @@ def go_to_pose(position, euler_angles, grip, enter=True):
         else:
             time.sleep(1)
         if not planner.execute_plan(plan):
+            if grip:
+                command = gc.genCommand(grip, command)   # do something, this is a hack
+                pub.publish(command)
+
             raise Exception("Execution failed")
 
         if grip:
@@ -151,6 +155,7 @@ def feedback_control_level_out(tolerance=5, goal=90, proportional_constant=0.5):
     """
     Closed loop feedback controller to level out the object held by the gripper
     """
+
     # go_to_pose([0.707, 0.158, 0.456], [-180, 90, -180], None) # Gripper parallel to groun
     rospy.sleep(3) # wait for object to stabilize
 
@@ -199,7 +204,7 @@ def go_into_box_demo():
     goto_initial_pos()
     level_orientation = feedback_control_level_out()
     # level_orientation = [-180 ,136.83, -180]
-    go_to_box(level_orientation)
+    # go_to_box(level_orientation)
     # go_to_box(orientation_original)
 
 def add_constraint(title, position, orientation, size):
@@ -221,6 +226,22 @@ def add_constraint(title, position, orientation, size):
 def remove_constraint(title):
     planner.remove_obstacle(title)
 
+def move_object_no_cam():
+    goto_initial_pos()
+    pickup_object()
+    goto_initial_pos()
+
+    mass = .5
+    k = .308
+    angle = calc_angle(mass, k)
+    angle_deg = np.degrees(angle)
+    print("Calculated angle is: " + str(angle_deg))
+
+    go_to_pose([0.707, 0.158, 0.456], [-180, 90 + angle_deg, -180], None) # Flat position
+
+    print(wall_object_angle)
+
+
 
 def main():
     """
@@ -228,21 +249,31 @@ def main():
     """
     init_ar_tag_listener()
     gripper_startup()
-    # find_k_increments(15)
+    # 
     add_constraint("Table", [1.1,.2,-.2], [0,0,0,1], [0.40, 1.20, 0.10]) #Table
     # add_constraint("Box", [1,0.6, .05 + 0.3048/2 - .2],[0,0,0,1],[0.3048, 0.3048, 0.3048]) #Box
     # remove_constraint("Box")
     # remove_constraint('Table')
 
+    # 
+    
+
+    # find_k_increments(15)
+    #feedback_control_demo()
+
     # feedback_control_demo()
-    go_into_box_demo()
+    # go_into_box_demo()
+    move_object_no_cam()
+    
 
 # Move to utils later
-def calc_k(mass, theta):
+def calc_k(mass, theta): #THIS IS THE WRONG FORMULA
     G = 9.81
     d = 0.025 # 2.5 cm (length of small vacuum gripper)
 
+
     spring_constant_k = (mass*G*d)/theta
+    print("no bad")
 
     return spring_constant_k
 
@@ -256,10 +287,12 @@ def calc_k(mass, theta):
 
 def calc_angle(mass, k):
     """ Figures out new angle for object given k and the object's mass """
+
+    #TODO: add grippper angle in this formula
     G = 9.81
     d = 0.025 
 
-    return (mass*G*d)/k 
+    return (mass * G * d)/k
 
 if __name__ == '__main__':
     rospy.init_node('moveit_node')
