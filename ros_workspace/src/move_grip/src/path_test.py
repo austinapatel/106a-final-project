@@ -20,6 +20,8 @@ from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_out
 from move_grip.msg import MoveGripARMessage
 from scipy.spatial.transform import Rotation as R
 
+import matplotlib.pyplot as plt
+
 #Define global variables
 object_robot_angle = None
 wall_object_angle = None
@@ -231,16 +233,40 @@ def move_object_no_cam():
     pickup_object()
     goto_initial_pos()
 
+    theta_desired = np.radians(90)
     mass = .5
-    k = .308
-    angle = calc_angle(mass, k)
-    angle_deg = np.degrees(angle)
-    print("Calculated angle is: " + str(angle_deg))
 
-    go_to_pose([0.707, 0.158, 0.456], [-180, 90 + angle_deg, -180], None) # Flat position
+    candidate_theta_grippers = np.linspace(0,np.pi,1000)
+    resulting_object_angles = [calc_object_angle(mass, get_k(gripper_theta), gripper_theta) for gripper_theta in candidate_theta_grippers]
 
-    print(wall_object_angle)
+    smallest_diff = np.inf
+    smallest_diff_i = -1
+    for i, object_angle in enumerate(resulting_object_angles):
+        cur_diff = np.abs(object_angle - theta_desired)
+        if cur_diff < smallest_diff:
+            smallest_diff = cur_diff
+            smallest_diff_i = i
 
+    best_gripper_angle = candidate_theta_grippers[smallest_diff_i]
+    best_resulting_object_angle = resulting_object_angles[smallest_diff_i]
+
+    print("found that %s is the best gripper angle, which causes a %s object angle" % (best_gripper_angle, best_resulting_object_angle))
+
+    plt.plot(candidate_theta_grippers, resulting_object_angles)
+
+    #
+    # k = get_k() # .308
+    # angle_rad = calc_object_angle(mass, k, theta_desired)
+    # print("Calculated angle (degrees) is: " + str(np.degrees(angle_rad)))
+    #
+    # go_to_pose([0.707, 0.158, 0.456], [-180, np.degrees(theta_desired + angle_rad), -180], None) # Flat position
+    #
+    # print(wall_object_angle)
+
+
+def get_k(gripper_angle):
+    k = 0.1719833959
+    return k
 
 
 def main():
@@ -267,15 +293,15 @@ def main():
     
 
 # Move to utils later
-def calc_k(mass, theta): #THIS IS THE WRONG FORMULA
-    G = 9.81
-    d = 0.025 # 2.5 cm (length of small vacuum gripper)
-
-
-    spring_constant_k = (mass*G*d)/theta
-    print("no bad")
-
-    return spring_constant_k
+# def calc_k(mass, theta): #THIS IS THE WRONG FORMULA
+#     G = 9.81
+#     d = 0.025 # 2.5 cm (length of small vacuum gripper)
+#
+#
+#     spring_constant_k = (mass*G*d)/theta
+#     print("no bad")
+#
+#     return spring_constant_k
 
 # Step 1: Find angle
 # Step 2: Use angle to find k
@@ -285,14 +311,14 @@ def calc_k(mass, theta): #THIS IS THE WRONG FORMULA
     # Step 4b: Track angle between object and base ar_tags
     # Step 4c: Control the angle needed between the vacuum gripper and object that makes the angle between the object and base frame equal to 0
 
-def calc_angle(mass, k):
+def calc_object_angle(mass, k, gripper_angle):
     """ Figures out new angle for object given k and the object's mass """
 
-    #TODO: add grippper angle in this formula
     G = 9.81
     d = 0.025 
 
-    return (mass * G * d)/k
+    # return (mass * G * d)/k
+    return mass * G * d * np.sin(gripper_angle) / k
 
 if __name__ == '__main__':
     rospy.init_node('moveit_node')
