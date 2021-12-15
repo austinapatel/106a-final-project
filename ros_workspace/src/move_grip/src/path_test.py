@@ -31,7 +31,7 @@ command = outputMsg.RobotiqVacuumGrippers_robot_output()
 pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuumGrippers_robot_output)
 
 orientation_original = [-180, 0, -180] #[0.0, 1.0, 0.0, 0.0] # Robot Gripper
-
+object_height = 0.1
 
 
 
@@ -138,12 +138,12 @@ def find_k_increments(increment):
 
 
 def pickup_object():
-    go_to_pose([0.840, 0.094, 0.2], orientation_original, None) # slightly above object
-    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'g') # grab object
+    go_to_pose([0.840, 0.094, object_height + 0.01], orientation_original, None) # slightly above object
+    go_to_pose([0.840, 0.094, object_height], orientation_original, 'g') # grab object
 
 def drop_object():
     # go_to_pose([0.840, 0.094, 0.2], orientation_original, None) # slightly above object
-    go_to_pose([0.840, 0.094, 0.10], orientation_original, 'c') # grab object
+    go_to_pose([0.840, 0.094, object_height], orientation_original, 'c') # grab object
 
 
 def goto_initial_pos():
@@ -228,16 +228,40 @@ def add_constraint(title, position, orientation, size):
 def remove_constraint(title):
     planner.remove_obstacle(title)
 
-def move_object_no_cam():
+def move_object_no_cam_to_angle_demo():
+    global object_height
+
+    theta_desired = np.radians(90)
+
+    # object masses
+    object_1_mass = 0.157 # small
+    object_2_mass = 0.345 # medium
+    object_3_mass = 0.373 + .084 # large
+    
+    # object d
+    object_1_d = 0.051 # small
+    object_2_d = 0.102 # medium
+    object_3_d = 0.122 # large
+
+    # object height
+    object_1_h = 0.05
+    object_2_h = 0.1
+    object_3_h = 0.11
+
+    # set params based on which object is being used
+    mass = object_1_mass
+    object_d = object_1_d
+    object_height = object_1_h
+
+
+    # pick up object
     goto_initial_pos()
     pickup_object()
     goto_initial_pos()
 
-    theta_desired = np.radians(90)
-    mass = .5
-
+    # compute gripper angle to go to
     candidate_theta_grippers = np.linspace(0,np.pi,1000)
-    resulting_object_angles = [calc_object_angle(mass, get_k(gripper_theta), gripper_theta) for gripper_theta in candidate_theta_grippers]
+    resulting_object_angles = [calc_object_angle(mass, get_k(gripper_theta), gripper_theta, object_d) for gripper_theta in candidate_theta_grippers]
 
     smallest_diff = np.inf
     smallest_diff_i = -1
@@ -250,9 +274,21 @@ def move_object_no_cam():
     best_gripper_angle = candidate_theta_grippers[smallest_diff_i]
     best_resulting_object_angle = resulting_object_angles[smallest_diff_i]
 
-    print("found that %s is the best gripper angle, which causes a %s object angle" % (best_gripper_angle, best_resulting_object_angle))
+    print("found that %s is the best gripper angle, which causes a %s object angle" % (np.degrees(best_gripper_angle), np.degrees(best_resulting_object_angle)))
 
-    plt.plot(candidate_theta_grippers, resulting_object_angles)
+
+    # Generate plot
+    plt.plot(np.degrees(candidate_theta_grippers), np.degrees(resulting_object_angles), label='Predicted behavior')
+    plt.xlabel('Candidate gripper theta (degrees)')
+    plt.ylabel('Predicted gripper theta (degrees)')
+    plt.axhline(y=np.degrees(theta_desired), color='r', label='Desired object angle', linestyle='dashed')
+    plt.axvline(x=np.degrees(best_gripper_angle), color='g', label='Best gripper angle', linestyle='dashed')
+    plt.title('Non rigid gripper model curve for mass=%s kg' % mass)
+    plt.legend()
+    plt.savefig('/home/cc/ee106a/fl21/class/ee106a-ace/Desktop/106a-final-project/figures/mass_%s.png' % mass)
+
+    # go to desired location
+    go_to_pose([0.707, 0.158, 0.456], [-180, np.degrees(best_gripper_angle), -180], None) # Flat position
 
     #
     # k = get_k() # .308
@@ -263,9 +299,41 @@ def move_object_no_cam():
     #
     # print(wall_object_angle)
 
+    print('waiting for object to stabilize')
+    time.sleep(3)
+    print('actual angle between object and robot is %s' % wall_object_angle)
+    print('error from desired is %s' % (wall_object_angle - np.degrees(theta_desired)))
 
-def get_k(gripper_angle):
-    k = 0.1719833959
+
+def modeling_determine_mass_demo():
+    global object_height
+    object_height = 0.085
+
+    # 200g is actual weight
+
+
+    # pick up object
+    goto_initial_pos()
+    pickup_object()
+    goto_initial_pos()
+
+    gripper_angle = np.radians(90) # radians
+
+    # move gripper to 90
+    go_to_pose([0.707, 0.158, 0.456], [-180, np.degrees(gripper_angle), -180], None) # Flat position
+
+    # stabilize and measure object wall angle
+    time.sleep(3)
+    cur_wall_obj_angle = np.radians(wall_object_angle)
+    print("Current wall obj angle is %s" % np.degrees(cur_wall_obj_angle))
+    
+    # compute mass
+    mass_computed = compute_m(get_k(gripper_angle), 0.108, gripper_angle, cur_wall_obj_angle)
+    print("Mass is computed to be %s" % mass_computed)
+
+
+def get_k(gripper_angle): # gripper_angle is in radians
+    k = 0.361
     return k
 
 
@@ -289,7 +357,8 @@ def main():
 
     # feedback_control_demo()
     # go_into_box_demo()
-    move_object_no_cam()
+    # move_object_no_cam_to_angle_demo()
+    modeling_determine_mass_demo()
     
 
 # Move to utils later
@@ -311,14 +380,21 @@ def main():
     # Step 4b: Track angle between object and base ar_tags
     # Step 4c: Control the angle needed between the vacuum gripper and object that makes the angle between the object and base frame equal to 0
 
-def calc_object_angle(mass, k, gripper_angle):
+def calc_object_angle(mass, k, gripper_angle, object_d):
     """ Figures out new angle for object given k and the object's mass """
 
     G = 9.81
-    d = 0.025 
+    d = object_d + 0.025 
 
     # return (mass * G * d)/k
-    return mass * G * d * np.sin(gripper_angle) / k
+    return gripper_angle - (mass * G * d * np.sin(gripper_angle) / k)
+
+
+def compute_m(k, object_d, gripper_angle, object_angle):
+    G = 9.81
+    d = object_d + 0.025 
+
+    return k*(gripper_angle - object_angle)/(G*d*np.sin(gripper_angle))
 
 if __name__ == '__main__':
     rospy.init_node('moveit_node')
